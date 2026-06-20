@@ -30,20 +30,20 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FONTS_DIR = os.path.join(BASE_DIR, "fonts")
 FONT_PATH = os.path.join(FONTS_DIR, "PlayfairDisplay-Italic.ttf")
 
-# If the exact filename cannot be found, take any .ttf/.otf file from the fonts/ folder
+# если точное имя не нашлось — берём любой .ttf/.otf файл из папки fonts/
 if not os.path.exists(FONT_PATH) and os.path.isdir(FONTS_DIR):
     candidates = [f for f in os.listdir(FONTS_DIR) if f.lower().endswith((".ttf", ".otf"))]
     if candidates:
         FONT_PATH = os.path.join(FONTS_DIR, candidates[0])
 
-# --- the appearance of the watermark ---
+# --- внешний вид вотермарки ---
 FONT_SIZE_RATIO = 0.07
 OPACITY = 170
 SHADOW_OPACITY = 90
 ROTATION_DEGREES = -30
 TILE_SPACING_RATIO = 0.55
 
-# --- stages of dialogue ---
+# --- состояния диалога ---
 WAITING_TEXT, WAITING_PHOTO = range(2)
 
 logging.basicConfig(
@@ -54,11 +54,11 @@ logger = logging.getLogger(__name__)
 
 
 # ──────────────────────────────────────────────────────────
-#  The logic behind watermarking
+#  Логика наложения водяного знака
 # ──────────────────────────────────────────────────────────
 
 def apply_text_watermark(base_image_bytes: bytes, text: str) -> io.BytesIO:
-    """adds text watermark to the base image"""
+    """Накладывает текст элегантным шрифтом по диагонали по всему фото."""
     base = Image.open(io.BytesIO(base_image_bytes)).convert("RGBA")
     w, h = base.size
 
@@ -103,7 +103,7 @@ def apply_text_watermark(base_image_bytes: bytes, text: str) -> io.BytesIO:
 
 
 # ──────────────────────────────────────────────────────────
-#  keyboards
+#  Вспомогательные клавиатуры
 # ──────────────────────────────────────────────────────────
 
 def after_result_keyboard() -> InlineKeyboardMarkup:
@@ -116,7 +116,7 @@ def after_result_keyboard() -> InlineKeyboardMarkup:
 
 
 # ──────────────────────────────────────────────────────────
-#  Dialogue handlers
+#  Хендлеры диалога
 # ──────────────────────────────────────────────────────────
 
 WELCOME = (
@@ -245,7 +245,7 @@ async def fallback_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 
 # ──────────────────────────────────────────────────────────
-#  Starting the bot
+#  Запуск
 # ──────────────────────────────────────────────────────────
 
 async def post_init(application: Application) -> None:
@@ -288,6 +288,7 @@ def main() -> None:
             ],
         },
         fallbacks=[CommandHandler("cancel", cancel), MessageHandler(filters.ALL, fallback_message)],
+        allow_reentry=True,
     )
 
     app.add_handler(conv)
